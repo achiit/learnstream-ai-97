@@ -14,7 +14,166 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          id: string
+          email: string
+          full_name: string | null
+          avatar_url: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          email: string
+          full_name?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          full_name?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      learning_sessions: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string | null
+          source_type: 'upload' | 'prompt'
+          source_content: string | null
+          file_url: string | null
+          status: 'processing' | 'completed' | 'failed'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description?: string | null
+          source_type: 'upload' | 'prompt'
+          source_content?: string | null
+          file_url?: string | null
+          status?: 'processing' | 'completed' | 'failed'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string | null
+          source_type?: 'upload' | 'prompt'
+          source_content?: string | null
+          file_url?: string | null
+          status?: 'processing' | 'completed' | 'failed'
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      generated_videos: {
+        Row: {
+          id: string
+          session_id: string
+          user_id: string
+          video_url: string
+          thumbnail_url: string | null
+          duration: number | null
+          transcript: string | null
+          metadata: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          session_id: string
+          user_id: string
+          video_url: string
+          thumbnail_url?: string | null
+          duration?: number | null
+          transcript?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          session_id?: string
+          user_id?: string
+          video_url?: string
+          thumbnail_url?: string | null
+          duration?: number | null
+          transcript?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      learning_progress: {
+        Row: {
+          id: string
+          user_id: string
+          video_id: string
+          progress_percentage: number
+          last_position: number
+          completed: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          video_id: string
+          progress_percentage?: number
+          last_position?: number
+          completed?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          video_id?: string
+          progress_percentage?: number
+          last_position?: number
+          completed?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      chat_messages: {
+        Row: {
+          id: string
+          user_id: string
+          session_id: string | null
+          role: 'user' | 'ai'
+          message: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          session_id?: string | null
+          role: 'user' | 'ai'
+          message: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          session_id?: string | null
+          role?: 'user' | 'ai'
+          message?: string
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
