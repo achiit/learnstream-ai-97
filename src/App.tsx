@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import DatabaseSetup from "./pages/DatabaseSetup";
 import LevelCheck from "./pages/LevelCheck";
 import Generate from "./pages/Generate";
+import Videos from "./pages/Videos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Generate />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/videos" 
+            element={
+              <ProtectedRoute>
+                <Videos />
               </ProtectedRoute>
             } 
           />

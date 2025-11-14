@@ -3,7 +3,7 @@
  * Manages video generation jobs in a queue for non-blocking UI
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { manimService, VideoJobStatus } from '@/services/manim.service';
 import { toast } from 'sonner';
 
@@ -13,12 +13,14 @@ export interface QueuedJob extends VideoJobStatus {
   videoUrl?: string;
 }
 
-const POLL_INTERVAL = 5000; // 5 seconds
+const POLL_INTERVAL = 30000; // 30 seconds
 const STORAGE_KEY = 'video-job-queue';
 
 export function useVideoQueue() {
   const [queue, setQueue] = useState<QueuedJob[]>([]);
   const [isPolling, setIsPolling] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const queueRef = useRef<QueuedJob[]>([]);
 
   // Load queue from localStorage on mount
   useEffect(() => {
@@ -41,6 +43,11 @@ export function useVideoQueue() {
 
     loadQueue();
   }, []);
+
+  // Keep queueRef in sync with queue
+  useEffect(() => {
+    queueRef.current = queue;
+  }, [queue]);
 
   // Save queue to localStorage whenever it changes
   useEffect(() => {
@@ -103,20 +110,29 @@ export function useVideoQueue() {
     });
   }, []);
 
+  // Track active job IDs - only changes when jobs are added/removed, not when status changes
+  const activeJobIds = useMemo(() => {
+    return queue
+      .filter((job) => job.status === 'queued' || job.status === 'started')
+      .map((job) => job.job_id)
+      .sort()
+      .join(',');
+  }, [queue]);
+
   // Poll active jobs for status updates
   useEffect(() => {
-    // Include ALL jobs that aren't finished or failed for polling
-    // This ensures we catch the status change even if state hasn't updated yet
-    const activeJobs = queue.filter(
-      (job) => job.status === 'queued' || job.status === 'started'
-    );
+    // Get active job IDs (only track IDs, not full job objects)
+    const activeJobIdList = activeJobIds ? activeJobIds.split(',').filter(Boolean) : [];
 
-    console.log('[VideoQueue] Active jobs to poll:', activeJobs.length, activeJobs.map(j => ({
-      id: j.job_id.substring(0, 8),
-      status: j.status
-    })));
+    console.log('[VideoQueue] Active jobs to poll:', activeJobIdList.length, activeJobIdList.map(id => id.substring(0, 8)));
 
-    if (activeJobs.length === 0) {
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    if (activeJobIdList.length === 0) {
       setIsPolling(false);
       return;
     }
@@ -124,6 +140,22 @@ export function useVideoQueue() {
     setIsPolling(true);
 
     const pollJobs = async () => {
+      // Get current active jobs from ref (always use latest state)
+      const currentQueue = queueRef.current;
+      const activeJobs = currentQueue.filter(
+        (job) => job.status === 'queued' || job.status === 'started'
+      );
+
+      // If no active jobs, stop polling
+      if (activeJobs.length === 0) {
+        setIsPolling(false);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+        return;
+      }
+
       for (const job of activeJobs) {
         try {
           const status = await manimService.getJobStatus(job.job_id);
@@ -192,11 +224,16 @@ export function useVideoQueue() {
     // Initial poll
     pollJobs();
 
-    // Set up interval
-    const interval = setInterval(pollJobs, POLL_INTERVAL);
+    // Set up interval - only restart if active job IDs changed
+    intervalRef.current = setInterval(pollJobs, POLL_INTERVAL);
 
-    return () => clearInterval(interval);
-  }, [queue, updateJobStatus]);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [activeJobIds, updateJobStatus]); // Only restart when active job IDs change
 
   // Get jobs by status
   const getJobsByStatus = useCallback(

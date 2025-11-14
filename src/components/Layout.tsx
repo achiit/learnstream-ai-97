@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, LogOut, ChevronDown } from "lucide-react";
+import { BookOpen, LogOut, ChevronDown, Video } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useUser } from "@/hooks/useUser";
@@ -53,10 +53,26 @@ export const Layout = ({ children, showAuth = false }: LayoutProps) => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <BookOpen className="h-6 w-6 text-primary" />
-            <span className="font-bold text-xl">LearnAdapt</span>
-          </Link>
+          <div className="flex items-center gap-6">
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <BookOpen className="h-6 w-6 text-primary" />
+              <span className="font-bold text-xl">LearnAdapt</span>
+            </Link>
+            {showAuth && user && (
+              <nav className="hidden md:flex items-center gap-4">
+                <Link to="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  Dashboard
+                </Link>
+                <Link to="/generate" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  Generate
+                </Link>
+                <Link to="/videos" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+                  <Video className="h-4 w-4" />
+                  Videos
+                </Link>
+              </nav>
+            )}
+          </div>
           
           {showAuth && user && (
             <DropdownMenu>
@@ -84,6 +100,12 @@ export const Layout = ({ children, showAuth = false }: LayoutProps) => {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/videos" className="cursor-pointer">
+                    <Video className="mr-2 h-4 w-4" />
+                    <span>Videos</span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>

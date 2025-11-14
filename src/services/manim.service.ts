@@ -32,6 +32,22 @@ export interface JobListResponse {
   count: number;
 }
 
+export interface VideoInfo {
+  id: string;
+  filename: string;
+  has_audio: boolean;
+  created_at: number;
+  size_bytes: number;
+  size_mb: number;
+  download_url: string;
+  video_url: string;
+}
+
+export interface VideosListResponse {
+  count: number;
+  videos: VideoInfo[];
+}
+
 class ManimService {
   private baseUrl: string;
 
@@ -46,6 +62,7 @@ class ManimService {
     return {
       'Content-Type': 'application/json',
       'ngrok-skip-browser-warning': 'true',
+      "x-requested-with": "XMLHttpRequest",
     };
   }
 
@@ -142,6 +159,60 @@ class ManimService {
    */
   getVideoUrl(jobId: string): string {
     return `${this.baseUrl}/api/v1/video/${jobId}`;
+  }
+
+  /**
+   * Get video stream URL
+   */
+  getVideoStreamUrl(videoId: string): string {
+    return `${this.baseUrl}/api/v1/stream/${videoId}`;
+  }
+
+  /**
+   * Get video download URL
+   */
+  getVideoDownloadUrl(videoId: string): string {
+    return `${this.baseUrl}/api/v1/video/${videoId}`;
+  }
+
+  /**
+   * Get all videos with audio
+   */
+  async getVideosWithAudio(): Promise<VideosListResponse> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/v1/videos/with-audio`, {
+        headers: this.getHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to get videos with audio: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error getting videos with audio:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all videos without audio
+   */
+  async getVideosWithoutAudio(): Promise<VideosListResponse> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/v1/videos/without-audio`, {
+        headers: this.getHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to get videos without audio: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error getting videos without audio:', error);
+      throw error;
+    }
   }
 
   /**

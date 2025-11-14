@@ -176,59 +176,23 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                {/* Chat Interface */}
-                <div className="space-y-4">
-                  <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-900 min-h-[400px] max-h-[500px] overflow-y-auto space-y-4">
-                    {chatHistory.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center h-full text-center py-12">
-                        <MessageSquare className="h-16 w-16 text-muted-foreground mb-4" />
-                        <h3 className="font-semibold text-lg mb-2">Start a conversation</h3>
-                        <p className="text-muted-foreground max-w-md">
-                          Ask me anything about your learning topics. I can explain concepts, answer questions, and help you understand complex ideas.
-                        </p>
-                      </div>
-                    ) : (
-                      chatHistory.map((chat, index) => (
-                        <div 
-                          key={index} 
-                          className={`flex ${chat.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                            chat.role === 'user' 
-                              ? 'bg-[#FF8B6D] text-white' 
-                              : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
-                          }`}>
-                            <p className="text-sm">{chat.message}</p>
-                          </div>
-                        </div>
-                      ))
-                    )}
+                {/* Open Live Interaction Button */}
+                <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                  <div className="text-center space-y-2">
+                    <MessageSquare className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="font-semibold text-lg">Start Live Interaction</h3>
+                    <p className="text-muted-foreground max-w-md">
+                      Click the button below to open the live interaction interface in a new tab.
+                    </p>
                   </div>
-
-                  {/* Input Area */}
-                  <div className="flex gap-2">
-                    <Textarea
-                      placeholder="Ask a question or start a conversation..."
-                      value={interactionMessage}
-                      onChange={(e) => setInteractionMessage(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleInteractionSend();
-                        }
-                      }}
-                      rows={2}
-                      className="resize-none flex-1"
-                    />
-                    <Button 
-                      onClick={handleInteractionSend}
-                      disabled={!interactionMessage.trim()}
-                      size="lg"
-                      className="bg-gradient-to-r from-purple-500 to-purple-600 hover:opacity-90"
-                    >
-                      <Send className="h-5 w-5" />
-                    </Button>
-                  </div>
+                  <Button 
+                    onClick={() => window.open('http://localhost:7860', '_blank')}
+                    size="lg"
+                    className="bg-gradient-to-r from-purple-500 to-purple-600 hover:opacity-90 text-lg px-8 py-6"
+                  >
+                    <MessageSquare className="h-5 w-5 mr-2" />
+                    Open Live Interaction
+                  </Button>
                 </div>
               </Card>
             </TabsContent>

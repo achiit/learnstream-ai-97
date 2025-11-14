@@ -146,7 +146,7 @@ const Generate = () => {
 
       const response = await manimService.generateVideo({
         prompt: prompt,
-        enable_audio: false,
+        enable_audio: true,
         review_cycles: reviewCount,
       });
 
@@ -194,7 +194,7 @@ const Generate = () => {
       // Start a new generation with the same prompt
       const response = await manimService.generateVideo({
         prompt: job.prompt,
-        enable_audio: false,
+        enable_audio: true,
         review_cycles: 3, // Default review count for retry
       });
 
